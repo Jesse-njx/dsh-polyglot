@@ -2,6 +2,28 @@
   "name": "@dsh-polyglot/bundle",
   "version": "0.1.0",
   "description": "dsh-polyglot — the model switch for DSH: one generic OpenAI-compatible ctx.llm adapter, curated free/cheap DeepSeek provider presets, and automatic provider fallback when a free tier rate-limits you",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "llm",
+    "openai-compatible",
+    "adapter",
+    "router",
+    "fallback",
+    "deepseek",
+    "openrouter",
+    "plugin"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jesse-njx/dsh-polyglot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jesse-njx/dsh-polyglot/issues"
+  },
+  "homepage": "https://github.com/Jesse-njx/dsh-polyglot#readme",
+  "sideEffects": false,
   "type": "module",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -51,6 +73,5 @@
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
-  },
-  "license": "MIT"
+  }
 }
