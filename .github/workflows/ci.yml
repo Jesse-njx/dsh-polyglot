@@ -10,7 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [20, 22, 24]
+        # Tests run on Node's native TS type-stripping (needs 22.18+); the
+        # plugin runtime itself supports Node 20+ per engines.
+        node: [22, 24]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
