@@ -1,0 +1,17 @@
+{
+  "id": "together",
+  "displayName": "Together AI",
+  "baseUrl": "https://api.together.xyz/v1",
+  "auth": { "kind": "key", "apiKeyEnv": "TOGETHER_API_KEY" },
+  "free": {
+    "tier": false,
+    "grant": "paid, with occasional free model rotations",
+    "limits": "none documented beyond standard quota"
+  },
+  "models": [
+    { "id": "deepseek-ai/DeepSeek-R1", "name": "DeepSeek-R1", "contextWindow": 131072 },
+    { "id": "deepseek-ai/DeepSeek-V3", "name": "DeepSeek-V3", "contextWindow": 131072 }
+  ],
+  "notes": "Latency upgrade rung; fast but pricier. Model ids use the Together lab/model spelling.",
+  "verifiedAt": "2026-08-14"
+}

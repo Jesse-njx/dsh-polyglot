@@ -1,0 +1,17 @@
+{
+  "id": "fireworks",
+  "displayName": "Fireworks AI",
+  "baseUrl": "https://api.fireworks.ai/inference/v1",
+  "auth": { "kind": "key", "apiKeyEnv": "FIREWORKS_API_KEY" },
+  "free": {
+    "tier": false,
+    "grant": "paid; rotating free model promotions",
+    "limits": "none documented beyond standard quota"
+  },
+  "models": [
+    { "id": "accounts/fireworks/models/deepseek-r1", "name": "DeepSeek-R1", "contextWindow": 131072 },
+    { "id": "accounts/fireworks/models/deepseek-v3", "name": "DeepSeek-V3", "contextWindow": 131072 }
+  ],
+  "notes": "Latency upgrade rung; fast but pricier. Model ids use the Fireworks accounts/fireworks/models spelling.",
+  "verifiedAt": "2026-08-14"
+}

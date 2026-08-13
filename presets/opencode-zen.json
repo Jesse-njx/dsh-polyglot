@@ -1,0 +1,43 @@
+{
+  "id": "opencode-zen",
+  "displayName": "OpenCode Zen",
+  "baseUrl": "https://opencode.ai/zen/v1",
+  "auth": {
+    "kind": "key",
+    "apiKeyEnv": "OPENCODE_API_KEY"
+  },
+  "free": {
+    "tier": true,
+    "grant": "free tier, no credit card",
+    "limits": "rate limits undocumented; 200k context"
+  },
+  "models": [
+    {
+      "id": "deepseek-v4-flash-free",
+      "name": "DeepSeek-V4-Flash (free)",
+      "contextWindow": 200000
+    },
+    {
+      "id": "qwen-3.6-plus",
+      "name": "Qwen 3.6 Plus",
+      "contextWindow": 200000
+    },
+    {
+      "id": "minimax-m3",
+      "name": "MiniMax M3",
+      "contextWindow": 200000
+    },
+    {
+      "id": "mimo",
+      "name": "MiMo",
+      "contextWindow": 200000
+    }
+  ],
+  "notes": "Curated gateway of tested models with a rotating free tier (~8 free models at last count). COMMERCIAL TERMS UNRELEASED for the free tier — flagged per spec risk ToS; surface this note at configure time, do not silently launder usage. Endpoint verified 2026-08 via docker-agent provider docs (base https://opencode.ai/zen, /v1 for chat completions).",
+  "verifiedAt": "2026-08-14",
+  "quirks": {
+    "usage": "deepseek",
+    "thinkingField": true,
+    "reasoningField": "reasoning_content"
+  }
+}

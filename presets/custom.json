@@ -1,0 +1,16 @@
+{
+  "id": "custom",
+  "displayName": "Custom (any OpenAI-compatible)",
+  "baseUrl": "http://localhost:8000/v1",
+  "auth": { "kind": "none", "apiKeyEnv": "POLYGLOT_CUSTOM_API_KEY", "note": "key optional — local vLLM/Ollama/SGLang usually need none" },
+  "free": {
+    "tier": true,
+    "grant": "your own hardware or any OpenAI-compatible endpoint",
+    "limits": "depends on the endpoint"
+  },
+  "models": [
+    { "id": "model", "name": "Any model id", "contextWindow": 131072 }
+  ],
+  "notes": "Point baseUrl at vLLM (http://localhost:8000/v1), Ollama (http://localhost:11434/v1), SGLang, LM Studio, or any OpenAI-compatible official endpoint (Qwen, GLM, Kimi). Override the models list in your profile. Catalog is advisory — the adapter accepts any model id the endpoint takes.",
+  "verifiedAt": "2026-08-14"
+}

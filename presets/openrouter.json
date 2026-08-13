@@ -1,0 +1,23 @@
+{
+  "id": "openrouter",
+  "displayName": "OpenRouter",
+  "baseUrl": "https://openrouter.ai/api/v1",
+  "auth": { "kind": "key", "apiKeyEnv": "OPENROUTER_API_KEY" },
+  "free": {
+    "tier": "mixed",
+    "grant": "free variants throttled; paid variants at listed rates",
+    "limits": "free variants may 429 under load"
+  },
+  "models": [
+    { "id": "deepseek/deepseek-v4-flash:free", "name": "DeepSeek-V4-Flash (free)", "contextWindow": 200000 },
+    { "id": "deepseek/deepseek-v4-flash", "name": "DeepSeek-V4-Flash", "contextWindow": 1000000 },
+    { "id": "deepseek/deepseek-v4-pro", "name": "DeepSeek-V4-Pro", "contextWindow": 1000000 }
+  ],
+  "quirks": { "usage": "deepseek", "thinkingField": true, "reasoningField": "reasoning_content" },
+  "headers": {
+    "HTTP-Referer": "https://github.com/dsh-polyglot/bundle",
+    "X-Title": "dsh-polyglot"
+  },
+  "notes": "Widest catalog, one key. Free variants are throttled — pair with a paid rung. Also the easiest path to Qwen/GLM/Kimi under one key.",
+  "verifiedAt": "2026-08-14"
+}

@@ -1,0 +1,38 @@
+{
+  "id": "deepseek-official",
+  "displayName": "DeepSeek Official",
+  "baseUrl": "https://api.deepseek.com",
+  "auth": {
+    "kind": "key",
+    "apiKeyEnv": "DEEPSEEK_API_KEY"
+  },
+  "free": {
+    "tier": false,
+    "grant": "5M free tokens for new accounts, 30 days, no credit card required"
+  },
+  "models": [
+    {
+      "id": "deepseek-v4-flash",
+      "name": "DeepSeek-V4-Flash",
+      "contextWindow": 1000000
+    },
+    {
+      "id": "deepseek-v4-pro",
+      "name": "DeepSeek-V4-Pro",
+      "contextWindow": 1000000
+    }
+  ],
+  "pricing": {
+    "inputPerMTokens": 0.14,
+    "outputPerMTokens": 0.28,
+    "cacheReadPerMTokens": 0.0028,
+    "note": "Flash $0.14/$0.28 per M; Pro $0.435/$0.87 per M (2026-08 researched); cache hits from $0.0028/M; prices trending up"
+  },
+  "notes": "Baseline provider — the prices DSH ships with. Register a key through the web Models page or export DEEPSEEK_API_KEY. Use the 5M new-account grant before it expires, then treat this as the paid rung.",
+  "verifiedAt": "2026-08-14",
+  "quirks": {
+    "usage": "deepseek",
+    "thinkingField": true,
+    "reasoningField": "reasoning_content"
+  }
+}

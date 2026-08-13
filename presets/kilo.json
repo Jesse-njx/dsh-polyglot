@@ -1,0 +1,44 @@
+{
+  "id": "kilo",
+  "displayName": "Kilo",
+  "baseUrl": "https://gateway.kilo.ai/v1",
+  "auth": {
+    "kind": "key",
+    "apiKeyEnv": "KILO_API_KEY",
+    "note": "gateway endpoint re-verify; Kilo Code sign-in also works"
+  },
+  "free": {
+    "tier": false,
+    "grant": "pay-as-you-go with no markup over provider rates",
+    "limits": "rotating free models on the platform"
+  },
+  "models": [
+    {
+      "id": "deepseek/deepseek-v4-flash",
+      "name": "DeepSeek-V4-Flash",
+      "contextWindow": 1000000
+    },
+    {
+      "id": "deepseek/deepseek-v4-pro",
+      "name": "DeepSeek-V4-Pro",
+      "contextWindow": 1000000
+    },
+    {
+      "id": "deepseek/deepseek-chat-v3.1-terminus",
+      "name": "DeepSeek-V3.1-Terminus",
+      "contextWindow": 164000
+    }
+  ],
+  "pricing": {
+    "inputPerMTokens": 0.14,
+    "outputPerMTokens": 0.28,
+    "note": "no markup over provider rates (2026-08 researched: Flash $0.14/$0.28, V3.1 Terminus $0.27/$1.00, V4-Pro $1.60/$3.38 per M)"
+  },
+  "notes": "Good paid-fallback rung between free tiers and DeepSeek official. Gateway base URL re-verify at install; model ids may need the Kilo-prefixed spelling.",
+  "verifiedAt": "2026-08-14",
+  "quirks": {
+    "usage": "deepseek",
+    "thinkingField": true,
+    "reasoningField": "reasoning_content"
+  }
+}

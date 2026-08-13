@@ -1,0 +1,17 @@
+{
+  "id": "groq",
+  "displayName": "Groq",
+  "baseUrl": "https://api.groq.com/openai/v1",
+  "auth": { "kind": "key", "apiKeyEnv": "GROQ_API_KEY" },
+  "free": {
+    "tier": "mixed",
+    "grant": "generous free tier for some models",
+    "limits": "DeepSeek models may be rate-limited on the free tier"
+  },
+  "models": [
+    { "id": "deepseek-r1-distill-llama-70b", "name": "DeepSeek-R1-Distill-Llama-70B", "contextWindow": 131072 },
+    { "id": "deepseek-v4-flash", "name": "DeepSeek-V4-Flash", "contextWindow": 131072 }
+  ],
+  "notes": "Latency upgrade — Groq inference is fast but pricier per token. Not a savings rung; position as speed, not cost.",
+  "verifiedAt": "2026-08-14"
+}

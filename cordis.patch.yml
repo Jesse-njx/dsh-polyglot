@@ -1,0 +1,18 @@
+# dsh-polyglot bundle layer: registers the generic OpenAI-compatible adapter
+# (one instance per configured provider preset) and the router meta-adapter
+# that owns the fallback chains. Users compose this bundle into a profile and
+# override `chains`/`cooldown` from their own profile patch.
+- insert:
+    - id: polyglot
+      name: '@dsh-polyglot/bundle'
+      config:
+        chains:
+          default:
+            - preset: nous-portal
+            - preset: opencode-zen
+            - preset: deepseek-official
+              model: deepseek-v4-flash
+            - preset: kilo
+        cooldown:
+          baseMs: 30000
+          maxMs: 900000

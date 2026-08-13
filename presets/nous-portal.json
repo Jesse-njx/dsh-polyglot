@@ -1,0 +1,29 @@
+{
+  "id": "nous-portal",
+  "displayName": "Nous Portal",
+  "baseUrl": "https://inference-api.nousresearch.com/v1",
+  "auth": {
+    "kind": "oauth",
+    "apiKeyEnv": "NOUS_PORTAL_TOKEN",
+    "note": "OAuth device flow required; MVP accepts a manually-obtained token from the Nous Portal API Keys page"
+  },
+  "free": {
+    "tier": true,
+    "grant": "free tier, OAuth-gated",
+    "limits": "hard rate ceiling that returns errors at the limit — the poster child for fallback"
+  },
+  "models": [
+    {
+      "id": "deepseek/deepseek-v4-flash:free",
+      "name": "DeepSeek-V4-Flash (free)",
+      "contextWindow": 200000
+    }
+  ],
+  "notes": "Free DeepSeek endpoint notoriously errors at its rate ceiling — put it FIRST in a chain and let the router fail over. Token is a bearer credential; device flow is a v0.2 item, manual key accepted for MVP. Endpoint verified 2026-08 (BYOK docs).",
+  "verifiedAt": "2026-08-14",
+  "quirks": {
+    "usage": "deepseek",
+    "thinkingField": true,
+    "reasoningField": "reasoning_content"
+  }
+}
