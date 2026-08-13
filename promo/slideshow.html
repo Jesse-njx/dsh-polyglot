@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dsh-polyglot — the model switch for DSH</title>
+<style>
+  /* ------------------------------------------------------------------ *
+   * dsh-polyglot promo slideshow — self-contained, no external assets.
+   * 1280x720 stage, scaled to fit any window. Advance with → / space,
+   * go back with ←, jump with Home/End, fullscreen with F.
+   * ------------------------------------------------------------------ */
+
+  :root {
+    --ink: #0b1220;          /* deep indigo stage background */
+    --panel: #111b33;        /* raised panels / cards */
+    --panel-2: #0e1730;      /* inset wells */
+    --paper: #e8edf7;        /* primary text */
+    --muted: #8fa3c8;        /* secondary text */
+    --line: #24334f;         /* hairlines */
+    --signal: #2dd4bf;       /* teal — the live request */
+    --signal-ink: #0b1220;
+    --warn: #f59e0b;         /* amber — the 429 wall */
+    --warn-ink: #1a1205;
+    --display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; margin: 0; }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: radial-gradient(1200px 700px at 70% -10%, #101b33 0%, #070b14 60%) fixed, #070b14;
+    font-family: var(--display);
+    color: var(--paper);
+  }
+
+  /* --- stage: fixed 1280x720, scaled to fit -------------------------- */
+  .stage {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(45,212,191,0.05), transparent 28%),
+      radial-gradient(900px 500px at 18% 110%, rgba(45,212,191,0.07), transparent 60%),
+      var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 40px 120px rgba(0,0,0,0.55);
+    transform-origin: center center;
+  }
+
+  /* --- slides -------------------------------------------------------- */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 64px 96px 88px;
+  }
+  .slide.active { display: flex; }
+
+  /* reveal orchestration: each .r element rises in on activation */
+  .slide .r { opacity: 0; transform: translateY(16px); }
+  .slide.active .r { animation: rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; animation-delay: calc(var(--d, 0) * 1ms + 140ms); }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--signal);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .eyebrow::before { content: "//"; color: var(--muted); }
+
+  h1, h2, .giant {
+    margin: 0;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.94;
+    color: var(--paper);
+  }
+  h1 { font-size: 150px; letter-spacing: -0.03em; }
+  h2 { font-size: 76px; }
+
+  .sub { color: var(--muted); font-size: 30px; font-weight: 600; }
+
+  /* --- chrome: wordmark / dots / counter / hint ---------------------- */
+  .chrome {
+    position: absolute;
+    left: 96px; right: 96px; bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .wordmark {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .wordmark b { color: var(--signal); font-weight: 700; }
+  .dots { display: flex; gap: 10px; }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 0;
+    padding: 0;
+    background: var(--line);
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .dot:hover { background: var(--muted); }
+  .dot[aria-current="true"] { background: var(--signal); transform: scale(1.25); }
+  .dot:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+  .counter {
+    font-family: var(--mono);
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+  }
+  .counter b { color: var(--paper); font-weight: 700; }
+
+  .hint {
+    position: absolute;
+    left: 50%; bottom: 84px;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(11,18,32,0.8);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 16px;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .hint.gone { opacity: 0; }
+
+  /* --- multilingual hello motif (the "polyglot" namesake) ------------- */
+  .words {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    pointer-events: none;
+  }
+  .words .track { display: flex; white-space: nowrap; animation: marquee 26s linear infinite; }
+  .words .track span {
+    font-weight: 900;
+    font-size: 150px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(143,163,200,0.14);
+    padding-right: 48px;
+  }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+  .words.fade { -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%); mask-image: linear-gradient(180deg, transparent, #000 55%); }
+
+  /* --- slide 1: hero -------------------------------------------------- */
+  .hero-copy { position: relative; z-index: 2; margin-top: auto; margin-bottom: auto; }
+  .hero-copy .eyebrow { margin-bottom: 22px; }
+  .hero-copy h1 { margin-bottom: 26px; }
+  .hero-copy h1 em { font-style: normal; color: var(--signal); }
+  .hero-tags {
+    display: flex; gap: 14px; margin-top: 40px; flex-wrap: wrap;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    color: var(--paper);
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 999px;
+    padding: 9px 18px;
+  }
+  .tag b { color: var(--signal); font-weight: 700; }
+
+  /* --- generic two-card grid ----------------------------------------- */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 64px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 40px 44px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .card .kicker {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--signal);
+    margin-bottom: 18px;
+  }
+  .card h3 { margin: 0 0 16px; font-size: 44px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.01em; line-height: 1; }
+  .card p { margin: 0; color: var(--muted); font-size: 22px; line-height: 1.45; }
+  .card .num { font-family: var(--mono); font-size: 13px; letter-spacing: 0.2em; color: var(--muted); }
+
+  /* --- slide 3: the 429 stencil -------------------------------------- */
+  .stencil-wrap { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; margin-top: 8px; }
+  .stencil {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 330px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--warn);
+    opacity: 0.9;
+  }
+  .stencil-cap {
+    position: absolute;
+    right: 14%;
+    bottom: 26%;
+    font-family: var(--mono);
+    font-size: 17px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--warn);
+    background: rgba(245,158,11,0.12);
+    border: 1px solid rgba(245,158,11,0.4);
+    border-radius: 999px;
+    padding: 10px 20px;
+    transform: rotate(-3deg);
+  }
+
+  /* --- slide 4: failover steps --------------------------------------- */
+  .steps { margin-top: 64px; display: grid; grid-template-columns: 1fr; gap: 0; }
+  .step { display: flex; align-items: baseline; gap: 28px; padding: 26px 0; border-top: 1px solid var(--line); }
+  .step:last-child { border-bottom: 1px solid var(--line); }
+  .step .n { font-family: var(--mono); font-size: 15px; color: var(--signal); font-weight: 700; }
+  .step .t { font-size: 34px; font-weight: 750; }
+  .step .t code { font-family: var(--mono); font-size: 30px; font-weight: 700; color: var(--warn); }
+
+  /* --- slide 5: the chain (signature animation) ----------------------- */
+  .chain-block { margin-top: 48px; }
+  .rail {
+    position: relative;
+    width: 900px;
+    height: 240px;
+    margin: 0 auto;
+  }
+  .rail::before {
+    content: "";
+    position: absolute;
+    left: 2%; right: 2%;
+    top: 150px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--line) 8%, var(--line) 92%, transparent);
+  }
+  .node {
+    position: absolute;
+    top: 96px;
+    width: 180px;
+    transform: translateX(-50%);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 20px 16px;
+    text-align: center;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .node .p { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .node .m { font-size: 21px; font-weight: 750; color: var(--paper); line-height: 1.15; }
+  .node.is-fail { border-color: rgba(245,158,11,0.55); }
+  .node.is-served { border-color: var(--signal); box-shadow: 0 0 0 1px var(--signal), 0 0 34px rgba(45,212,191,0.35); animation: servedGlow 7s linear infinite; }
+  @keyframes servedGlow {
+    0%, 26% { box-shadow: none; border-color: var(--line); }
+    28%, 46% { box-shadow: 0 0 0 1px var(--signal), 0 0 34px rgba(45,212,191,0.35); border-color: var(--signal); }
+    50%, 100% { box-shadow: none; border-color: var(--line); }
+  }
+  .node .badge {
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--warn-ink);
+    background: var(--warn);
+    border-radius: 8px;
+    padding: 4px 12px;
+    opacity: 0;
+    animation: flash429 7s linear infinite;
+  }
+  @keyframes flash429 {
+    0%, 11% { opacity: 0; transform: translateX(-50%) rotate(-3deg) scale(0.8); }
+    13%, 17% { opacity: 1; transform: translateX(-50%) rotate(-3deg) scale(1); }
+    21%, 100% { opacity: 0; }
+  }
+  .chevron {
+    position: absolute;
+    top: 138px;
+    font-family: var(--mono);
+    color: var(--muted);
+    font-size: 20px;
+    transform: translateX(-50%);
+  }
+  .packet {
+    position: absolute;
+    top: 141px;
+    left: -40px;
+    width: 20px; height: 20px;
+    margin-left: -10px; margin-top: -10px;
+    border-radius: 50%;
+    background: var(--signal);
+    box-shadow: 0 0 0 6px rgba(45,212,191,0.22), 0 0 26px rgba(45,212,191,0.9);
+    animation: hop 7s linear infinite;
+  }
+  .packet::after {
+    content: "req";
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--signal);
+    white-space: nowrap;
+  }
+  @keyframes hop {
+    0%   { left: -40px; opacity: 0; }
+    5%   { opacity: 1; }
+    10%  { left: 0px; }
+    18%  { left: 0px; }
+    26%  { left: 300px; }
+    44%  { left: 300px; }
+    50%  { opacity: 1; }
+    54%  { opacity: 0; left: 300px; }
+    100% { opacity: 0; left: -40px; }
+  }
+  .chain-cap { text-align: center; margin-top: 30px; color: var(--muted); font-size: 22px; }
+  .chain-cap b { color: var(--paper); font-weight: 750; }
+  .chain-cap .free { color: var(--signal); font-weight: 750; }
+  .chain-cap .paid { color: var(--warn); font-weight: 750; }
+
+  /* --- slide 6: commands --------------------------------------------- */
+  .term {
+    margin-top: 52px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 26px 32px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    font-family: var(--mono);
+  }
+  .term + .term { margin-top: 18px; }
+  .term .cmd { font-size: 34px; font-weight: 700; color: var(--signal); white-space: nowrap; }
+  .term .desc { color: var(--muted); font-size: 19px; line-height: 1.4; }
+  .term .caret { color: var(--warn); font-weight: 700; }
+
+  /* --- slide 7: presets ---------------------------------------------- */
+  .chips { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 72px; max-width: 1088px; }
+  .chip {
+    font-family: var(--mono);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--paper);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 26px;
+  }
+  .chip.free { border-color: rgba(45,212,191,0.5); color: var(--signal); }
+  .chip.paid { border-color: rgba(245,158,11,0.45); color: var(--warn); }
+  .chip .d { color: var(--muted); font-weight: 500; margin-left: 8px; }
+
+  /* --- slide 8: install ---------------------------------------------- */
+  .install {
+    margin-top: 64px;
+    background: var(--panel-2);
+    border: 1px solid var(--signal);
+    border-radius: 14px;
+    padding: 30px 36px;
+    box-shadow: 0 0 0 1px rgba(45,212,191,0.18), 0 0 44px rgba(45,212,191,0.12);
+  }
+  .install .line { font-family: var(--mono); font-size: 34px; font-weight: 700; color: var(--paper); white-space: nowrap; }
+  .install .line .prompt { color: var(--signal); }
+  .install .line .pkg { color: var(--warn); }
+
+  /* --- focus visibility ---------------------------------------------- */
+  :focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; border-radius: 4px; }
+
+  /* --- reduced motion: static demo state ----------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    .slide.active .r { animation: none; opacity: 1; transform: none; }
+    .words .track { animation: none; }
+    .packet { display: none; }
+    .node .badge { animation: none; opacity: 1; }
+    .node.is-served { animation: none; border-color: var(--signal); box-shadow: 0 0 0 1px var(--signal), 0 0 34px rgba(45,212,191,0.35); }
+  }
+</style>
+</head>
+<body>
+
+<main class="stage" id="stage" aria-roledescription="slideshow" aria-label="dsh-polyglot promo">
+  <!-- 1 · hero -->
+  <section class="slide" data-index="0" aria-hidden="true">
+    <div class="words fade" aria-hidden="true"><div class="track">
+      <span>你好&nbsp;Hello&nbsp;Привет&nbsp;مرحبا&nbsp;नमस्ते&nbsp;Hola&nbsp;Bonjour&nbsp;こんにちは&nbsp;Hallo&nbsp;Ciao&nbsp;안녕하세요&nbsp;Salut&nbsp;</span>
+      <span>你好&nbsp;Hello&nbsp;Привет&nbsp;مرحبا&nbsp;नमस्ते&nbsp;Hola&nbsp;Bonjour&nbsp;こんにちは&nbsp;Hallo&nbsp;Ciao&nbsp;안녕하세요&nbsp;Salut&nbsp;</span>
+    </div></div>
+    <div class="hero-copy">
+      <p class="eyebrow r" style="--d:0">DeepSeek Harness · LLM routing</p>
+      <h1 class="r" style="--d:60">dsh-<em>polyglot</em></h1>
+      <p class="sub r" style="--d:140">THE MODEL SWITCH FOR DSH</p>
+      <div class="hero-tags">
+        <span class="tag r" style="--d:220"><b>free</b>&nbsp;DeepSeek first</span>
+        <span class="tag r" style="--d:280">your own endpoint</span>
+        <span class="tag r" style="--d:340">auto-fallback</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · what it is -->
+  <section class="slide" data-index="1" aria-hidden="true">
+    <p class="eyebrow r" style="--d:0">What it is</p>
+    <h2 class="r" style="--d:60">ONE PLUGIN.<br>TWO LAYERS.</h2>
+    <div class="cards">
+      <div class="card r" style="--d:160">
+        <div>
+          <p class="kicker">Layer 1</p>
+          <h3>Generic adapter</h3>
+          <p>One OpenAI-compatible adapter for any endpoint — streaming, tools, usage.</p>
+        </div>
+        <p class="num">baseUrl · apiKey · quirks</p>
+      </div>
+      <div class="card r" style="--d:240">
+        <div>
+          <p class="kicker">Layer 2</p>
+          <h3>Fallback router</h3>
+          <p>Chains providers together and fails over automatically on rate limits.</p>
+        </div>
+        <p class="num">429 → next provider</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · the pain -->
+  <section class="slide" data-index="2" aria-hidden="true">
+    <p class="eyebrow r" style="--d:0">The pain</p>
+    <h2 class="r" style="--d:60">FREE TIERS<br>RATE-LIMIT.</h2>
+    <div class="stencil-wrap r" style="--d:140">
+      <div class="stencil">429</div>
+      <span class="stencil-cap">free ceiling hit</span>
+    </div>
+    <p class="sub r" style="--d:220">Prices climb. Endpoints locked. Requests die mid-task.</p>
+  </section>
+
+  <!-- 4 · the fix -->
+  <section class="slide" data-index="3" aria-hidden="true">
+    <p class="eyebrow r" style="--d:0">The fix</p>
+    <h2 class="r" style="--d:60">AUTOMATIC<br>FAILOVER</h2>
+    <div class="steps r" style="--d:180">
+      <div class="step"><span class="n">01</span><span class="t">Provider hits <code>429</code></span></div>
+      <div class="step"><span class="n">02</span><span class="t">It cools down — exponential, honors Retry-After</span></div>
+      <div class="step"><span class="n">03</span><span class="t">Next provider picks the request up</span></div>
+    </div>
+  </section>
+
+  <!-- 5 · the chain demo -->
+  <section class="slide" data-index="4" aria-hidden="true">
+    <p class="eyebrow r" style="--d:0">Live</p>
+    <h2 class="r" style="--d:60">WATCH THE CHAIN</h2>
+    <div class="chain-block r" style="--d:160">
+      <div class="rail">
+        <div class="node is-fail" style="left:0px">
+          <p class="p">Nous portal</p>
+          <p class="m">deepseek-v4-flash:free</p>
+          <span class="badge">429!</span>
+        </div>
+        <div class="node is-served" style="left:300px">
+          <p class="p">OpenCode Zen</p>
+          <p class="m">deepseek-v4-flash-free</p>
+        </div>
+        <div class="node" style="left:600px">
+          <p class="p">DeepSeek</p>
+          <p class="m">deepseek-v4-flash</p>
+        </div>
+        <div class="node" style="left:900px">
+          <p class="p">Kilo</p>
+          <p class="m">V4-Flash · no markup</p>
+        </div>
+        <span class="chevron" style="left:150px">›</span>
+        <span class="chevron" style="left:450px">›</span>
+        <span class="chevron" style="left:750px">›</span>
+        <div class="packet" aria-hidden="true"></div>
+      </div>
+      <p class="chain-cap"><span class="free">free</span> first&nbsp;&nbsp;→&nbsp;&nbsp;<b>cheapest-paid</b> last&nbsp;&nbsp;·&nbsp;&nbsp;every provider your own <b>baseUrl</b></p>
+    </div>
+  </section>
+
+  <!-- 6 · commands -->
+  <section class="slide" data-index="5" aria-hidden="true">
+    <p class="eyebrow r" style="--d:0">Control</p>
+    <h2 class="r" style="--d:60">YOUR CHAIN.<br>YOUR CALL.</h2>
+    <div class="term r" style="--d:160">
+      <span class="caret">▸</span><span class="cmd">/model</span>
+      <span class="desc">switch chains mid-session — logged to the session</span>
+    </div>
+    <div class="term r" style="--d:240">
+      <span class="caret">▸</span><span class="cmd">/polyglot usage</span>
+      <span class="desc">tokens &amp; est. cost per provider, from the session log</span>
+    </div>
+  </section>
+
+  <!-- 7 · presets -->
+  <section class="slide" data-index="6" aria-hidden="true">
+    <p class="eyebrow r" style="--d:0">Presets</p>
+    <h2 class="r" style="--d:60">FREE &amp; CHEAP DEEPSEEK,<br>EVERYWHERE.</h2>
+    <div class="chips r" style="--d:160">
+      <span class="chip free">nous-portal<span class="d">free</span></span>
+      <span class="chip free">opencode-zen<span class="d">free</span></span>
+      <span class="chip paid">deepseek-official<span class="d">5M grant</span></span>
+      <span class="chip paid">kilo<span class="d">no markup</span></span>
+      <span class="chip">openrouter<span class="d">everything</span></span>
+      <span class="chip">custom<span class="d">vLLM · Ollama</span></span>
+    </div>
+    <p class="sub r" style="--d:260">One config. Presets as data — community PRs add more.</p>
+  </section>
+
+  <!-- 8 · install -->
+  <section class="slide" data-index="7" aria-hidden="true">
+    <p class="eyebrow r" style="--d:0">Install</p>
+    <h2 class="r" style="--d:60">CODE ALL DAY<br>FOR FREE.</h2>
+    <div class="install r" style="--d:180">
+      <p class="line"><span class="prompt">$ </span>dsh plugin --profile web add <span class="pkg">@dsh-polyglot/bundle</span></p>
+    </div>
+    <p class="sub r" style="--d:280">One command. One minute. Free tier first, paid last.</p>
+  </section>
+
+  <!-- chrome -->
+  <footer class="chrome">
+    <span class="wordmark">dsh<b>·</b>polyglot</span>
+    <div class="dots" id="dots" role="tablist" aria-label="Slides"></div>
+    <span class="counter"><b id="cur">01</b> / <span id="total">08</span></span>
+  </footer>
+  <div class="hint" id="hint">space / → to advance · f for fullscreen</div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var stage = document.getElementById('stage');
+  var slides = Array.prototype.slice.call(stage.querySelectorAll('.slide'));
+  var dotsWrap = document.getElementById('dots');
+  var curEl = document.getElementById('cur');
+  var totalEl = document.getElementById('total');
+  var hint = document.getElementById('hint');
+  var index = 0;
+  var DOTS = [];
+
+  totalEl.textContent = String(slides.length).padStart(2, '0');
+
+  // Build the dot navigation.
+  slides.forEach(function (_, i) {
+    var dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'dot';
+    dot.setAttribute('role', 'tab');
+    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+    dot.addEventListener('click', function (event) {
+      event.stopPropagation();
+      go(i);
+    });
+    dotsWrap.appendChild(dot);
+    DOTS.push(dot);
+  });
+
+  function go(next) {
+    if (next === index || next < 0 || next >= slides.length) return;
+    slides[index].classList.remove('active');
+    slides[index].setAttribute('aria-hidden', 'true');
+    DOTS[index].setAttribute('aria-current', 'false');
+    index = next;
+    slides[index].classList.add('active');
+    slides[index].setAttribute('aria-hidden', 'false');
+    DOTS[index].setAttribute('aria-current', 'true');
+    curEl.textContent = String(index + 1).padStart(2, '0');
+    hint.classList.add('gone');
+  }
+
+  function next() { go(index + 1); }
+  function prev() { go(index - 1); }
+
+  // Keyboard: → / space / PageDown / Enter advance; ← / PageUp go back;
+  // Home / End jump; F toggles fullscreen.
+  document.addEventListener('keydown', function (event) {
+    var k = event.key;
+    if (k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'Enter') { event.preventDefault(); next(); }
+    else if (k === 'ArrowLeft' || k === 'PageUp') { event.preventDefault(); prev(); }
+    else if (k === 'Home') { event.preventDefault(); go(0); }
+    else if (k === 'End') { event.preventDefault(); go(slides.length - 1); }
+    else if (k === 'f' || k === 'F') {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+    }
+  });
+
+  // Click: left quarter goes back, rest advances (dots stop propagation).
+  stage.addEventListener('click', function (event) {
+    if (event.target.closest('.dot')) return;
+    var rect = stage.getBoundingClientRect();
+    var x = event.clientX - rect.left;
+    if (x < rect.width * 0.25) prev();
+    else next();
+  });
+
+  // Fit the fixed 1280x720 stage into the window.
+  function fit() {
+    var scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720) * 0.97;
+    stage.style.transform = 'scale(' + scale + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  // Start on slide 1 (or the slide named by the URL hash, e.g. #5).
+  var start = 0;
+  var hash = parseInt(window.location.hash.slice(1), 10);
+  if (Number.isFinite(hash) && hash >= 1 && hash <= slides.length) start = hash - 1;
+  go(start);
+  slides[start].classList.add('active');
+  slides[start].setAttribute('aria-hidden', 'false');
+  DOTS[start].setAttribute('aria-current', 'true');
+  curEl.textContent = String(start + 1).padStart(2, '0');
+})();
+</script>
+</body>
+</html>

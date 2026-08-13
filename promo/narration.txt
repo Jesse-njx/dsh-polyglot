@@ -1,0 +1,39 @@
+dsh-polyglot — promo narration (~1 minute, 8 slides)
+=====================================================
+Read this aloud while screen-recording. Each block starts on its slide; hold
+each slide ~7-8 seconds. Advance with the space bar or right arrow. Total run
+time ≈ 60 seconds.
+
+[Slide 1 — hero]
+Meet dsh-polyglot: the model switch for DeepSeek Harness. One plugin that
+points DSH at any OpenAI-compatible endpoint — free ones, cheap ones, even
+your own.
+
+[Slide 2 — one plugin, two layers]
+One plugin, two layers. A generic adapter that speaks to any OpenAI-compatible
+API. And a router that chains your providers together.
+
+[Slide 3 — the pain]
+Sound familiar? Free tiers rate-limit constantly. Official prices keep
+climbing. And everybody asks the same thing — can I use my own endpoint?
+
+[Slide 4 — automatic failover]
+So dsh-polyglot fails over automatically. A provider hits 429? It cools down,
+and the next one picks the request up. Mid-task, no drama.
+
+[Slide 5 — watch the chain]
+Watch it happen: nous-portal slams into the free ceiling, and opencode-zen
+takes over instantly. Then DeepSeek official. Then kilo. The chain keeps you
+moving.
+
+[Slide 6 — commands]
+Switch chains mid-session with /model. And check exactly what you spent with
+/polyglot usage — tokens and cost, straight from the session log.
+
+[Slide 7 — presets]
+Free and cheap DeepSeek, everywhere. Curated presets, one config, and a
+default chain that lets you code all day for free.
+
+[Slide 8 — install]
+Install it in one command: dsh plugin, profile web, add,
+at-dsh-polyglot-slash-bundle. Code all day for free.
