@@ -8,6 +8,7 @@ import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { Context } from '@deepseek-ai/cordis';
 import LlmRuntime from '@deepseek-ai/dsh-llm';
+import CommandRuntime from '@deepseek-ai/dsh-commands';
 import SessionStore from '@deepseek-ai/dsh-session';
 import { Config, resolveState } from '../src/index.ts';
 import type { ConfigType } from '../src/index.ts';
@@ -94,6 +95,7 @@ test('end-to-end: cordis mount serves a chain with fallback through ctx.llm.stre
 
   const ctx = new Context();
   await ctx.plugin(LlmRuntime);
+  await ctx.plugin(CommandRuntime);
   await ctx.plugin(SessionStore);
   const fiber = await ctx.plugin(Polyglot, {
     ...baseConfig(),
@@ -138,6 +140,7 @@ test('end-to-end: a chain of two healthy providers serves the first', async () =
   const second = await startMock([okStream('from second')]);
   const ctx = new Context();
   await ctx.plugin(LlmRuntime);
+  await ctx.plugin(CommandRuntime);
   const fiber = await ctx.plugin(Polyglot, {
     ...baseConfig(),
     chains: {
@@ -163,6 +166,7 @@ test('end-to-end: unconfigured provider route falls through without a key', asyn
   const healthy = await startMock([okStream('ok')]);
   const ctx = new Context();
   await ctx.plugin(LlmRuntime);
+  await ctx.plugin(CommandRuntime);
   const fiber = await ctx.plugin(Polyglot, {
     ...baseConfig(),
     chains: {
@@ -189,5 +193,5 @@ test('end-to-end: unconfigured provider route falls through without a key', asyn
 test('Config export shape is stable', () => {
   assert.ok(Config !== undefined);
   assert.ok(Polyglot.name === 'polyglot');
-  assert.deepEqual(Polyglot.inject, ['llm']);
+  assert.deepEqual(Polyglot.inject, ['llm', 'commands']);
 });
