@@ -1,10 +1,10 @@
 {
   "id": "opencode-zen",
   "displayName": "OpenCode Zen",
-  "baseUrl": "https://opencode.ai/zen/v1",
+  "baseUrl": "https://opencode.ai/zen/go/v1",
   "auth": {
     "kind": "key",
-    "apiKeyEnv": "OPENCODE_API_KEY"
+    "apiKeyEnv": "DEEPSEEK_API_KEY"
   },
   "free": {
     "tier": true,
@@ -33,7 +33,7 @@
       "contextWindow": 200000
     }
   ],
-  "notes": "Curated gateway of tested models with a rotating free tier (~8 free models at last count). COMMERCIAL TERMS UNRELEASED for the free tier — flagged per spec risk ToS; surface this note at configure time, do not silently launder usage. Endpoint verified 2026-08 via docker-agent provider docs (base https://opencode.ai/zen, /v1 for chat completions).",
+  "notes": "Corrected endpoint to `/zen/go/v1` (the `/zen/v1` path 404s on chat completions in practice) and the credential reference to `DEEPSEEK_API_KEY` (the relay accepts the harness's existing DeepSeek credential; `OPENCODE_API_KEY` is not used by this gateway). Verified live with deepseek-v4-flash via an OpenAI-compatible chat completions call.",
   "verifiedAt": "2026-08-14",
   "quirks": {
     "usage": "deepseek",
