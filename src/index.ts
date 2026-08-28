@@ -29,7 +29,9 @@ import { registerPolyglotCommands } from './commands.ts';
 import type { PolyglotCommandDeps } from './commands.ts';
 
 export const name = 'polyglot';
-export const inject = ['llm'] as const;
+// `commands` is required: `registerPolyglotCommands` touches the `ctx.commands`
+// proxy accessor, which cordis rejects unless the service is declared here.
+export const inject = ['llm', 'commands'] as const;
 
 const NS = settingsNamespace('polyglot');
 
